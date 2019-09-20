@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -55,6 +56,10 @@ public class User implements UserDetails {
 		this.password = password;
 	}
 
+	public List<String> getRoles() {
+		return roles.stream().map(x -> x.getAuthority()).collect(Collectors.toList());
+	}
+	
 	public Long getId() {
 		return id;
 	}
