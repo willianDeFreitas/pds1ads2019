@@ -1,8 +1,5 @@
 package com.educandoweb.course.services;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.educandoweb.course.dto.CredentialsDTO;
 import com.educandoweb.course.dto.TokenDTO;
+import com.educandoweb.course.entities.Order;
 import com.educandoweb.course.entities.User;
 import com.educandoweb.course.repositories.UserRepository;
 import com.educandoweb.course.security.JWTUtil;
@@ -53,14 +51,15 @@ public class AuthService {
 	
 	public void validadeSelfOrAdmin(Long userId) {
 		User user = authenticated();
-		if (user == null || (!user.getId().equals(userId) && !hasRole(user, "ROLE_ADMIN"))) {
+		if (user == null || (!user.getId().equals(userId) && !user.hasRole("ROLE_ADMIN"))) {
 			throw new JWTAuthorizationException("Access denied");
 		}
 	}
 	
-	private boolean hasRole(User user, String roleName) {
-		UserDetails userDetails = (UserDetails) user;
-		List<String> list = userDetails.getAuthorities().stream().map(role -> role.getAuthority()).collect(Collectors.toList());
-		return list.contains(roleName);
+	public void validadeOwnOrderOrAdmin(Order order) {
+		User user = authenticated();
+		if (user == null || (!user.getId().equals(order.getClient().getId()) && !user.hasRole("ROLE_ADMIN"))) {
+			throw new JWTAuthorizationException("Access denied");
+		}
 	}
 }
